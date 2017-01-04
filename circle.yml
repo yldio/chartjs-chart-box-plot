@@ -1,0 +1,27 @@
+## Customize the test machine
+machine:
+  pre:
+      - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
+
+  services:
+      - docker
+  node:
+    version: 6.9.3
+
+dependencies:
+  pre:
+      - mkdir -p ${CIRCLE_TEST_REPORTS}/tap-xunit/
+      - echo -e "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+  override:
+      - make && make install
+
+test:
+  override:
+      -  make -j2 lint-ci test-ci
+
+deployment:
+  production: # just a label; label names are completely up to you
+    branch: master
+    commands:
+      - make publish | sed '/NPM_TOKEN/d'

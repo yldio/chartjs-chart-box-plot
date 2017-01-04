@@ -2,13 +2,9 @@ NAME := $(lastword $(subst /, ,$(CURDIR)))
 PORT=8080
 
 bindir := $(shell yarn bin)
-AVA := $(bindir)/ava
-NYC := $(bindir)/nyc
-SERVE := $(bindir)/http-server
 
 .PHONY: test
 test:
-	BABEL_DISABLE_CACHE=1 NODE_ENV=test $(NYC) $(AVA) test/*.js $(TEST_ARGS)
 
 XUNIT_DIR := ${CIRCLE_TEST_REPORTS}/tap-xunit
 XUNIT := $(bindir)/tap-xunit
@@ -16,7 +12,7 @@ XUNIT_OUTPUT := >> ${CIRCLE_TEST_REPORTS}/tap-xunit/xunit-$(NAME)
 .PHONY: test-ci
 test-ci:
 	mkdir -p $(XUNIT_DIR)
-	BABEL_DISABLE_CACHE=1 NODE_ENV=test $(NYC) $(AVA) test/*.js -t | $(XUNIT) $(XUNIT_OUTPUT).xml
+	# BABEL_DISABLE_CACHE=1 NODE_ENV=test $(NYC) $(AVA) test/*.js -t | $(XUNIT) $(XUNIT_OUTPUT).xml
 
 .PHONY: install
 install:
