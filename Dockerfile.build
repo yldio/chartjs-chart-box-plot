@@ -5,5 +5,5 @@ ENV NPM_TOKEN ${NPM_TOKEN}
 ENV CIRCLE_BUILD_NUM ${CIRCLE_BUILD_NUM}
 RUN echo -e "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
 RUN make install compile
-RUN npm version 1.0.0-${CIRCLE_BUILD_NUM}
+RUN npm version --no-git-tag-version 1.0.0-${CIRCLE_BUILD_NUM}
 RUN npm publish --access public
