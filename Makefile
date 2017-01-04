@@ -40,4 +40,5 @@ lint-ci:
 
 .PHONY: publish
 publish:
-	docker build --build-arg NPM_TOKEN=${NPM_TOKEN} --build-arg CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM} -f Dockerfile.build .
+	VERSION=$(shell node -p "require('./package.json').version")
+	docker build --build-arg VERSION=${VERSION} --build-arg NPM_TOKEN=${NPM_TOKEN} --build-arg CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM} -f Dockerfile.build .

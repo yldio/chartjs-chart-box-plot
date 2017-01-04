@@ -1,5 +1,5 @@
 {
-  "name": "chartjs-chart-bot-plot",
+  "name": "chartjs-chart-box-plot",
   "version": "1.0.0",
   "description": "A Box-plot implementation for chart.js",
   "main": "dist/chart.js",
