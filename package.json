@@ -2,7 +2,7 @@
   "name": "chartjs-chart-bot-plot",
   "version": "1.0.0",
   "description": "A Box-plot implementation for chart.js",
-  "main": "index.js",
+  "main": "dist/chart.js",
   "scripts": {
     "test": "make test"
   },

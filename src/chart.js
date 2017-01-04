@@ -1,4 +1,4 @@
-const element = require('../element');
+const element = require('./element');
 
 module.exports = function(Chart) {
   element(Chart);
