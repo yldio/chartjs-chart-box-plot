@@ -132,7 +132,7 @@ module.exports = function(Chart) {
         ctx.stroke();
         ctx.closePath();
         ctx.beginPath();
-        ctx.arc((rightX - leftX) / 2 + leftX, vm.maxV, 3, 0, 2 * Math.PI);
+        ctx.arc((rightX - leftX) / 2 + leftX, vm.maxV, 2.5, 0, 2 * Math.PI);
         ctx.fillStyle = 'rgb(245, 93, 93)';
         ctx.fill();
       }
@@ -148,7 +148,7 @@ module.exports = function(Chart) {
         ctx.stroke();
         ctx.closePath();
         ctx.beginPath();
-        ctx.arc((rightX - leftX) / 2 + leftX, vm.minV, 3, 0, 2 * Math.PI);
+        ctx.arc((rightX - leftX) / 2 + leftX, vm.minV, 2.5, 0, 2 * Math.PI);
         ctx.fillStyle = 'rgb(245, 93, 93)';
         ctx.fill();
       }
