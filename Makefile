@@ -25,6 +25,10 @@ install-production: install
 compile: install
 	$(bindir)/babel src --out-dir dist --source-maps inline
 
+.PHONY: watch
+watch: install compile
+	$(bindir)/babel --watch src --out-dir dist --source-maps inline
+
 .PHONY: clean
 clean:
 	@rm -rf node_modules
