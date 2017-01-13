@@ -1,9 +1,9 @@
 const element = require('./element');
 
-module.exports = function(Chart) {
+module.exports = function BoxPlotChart(Chart) {
   element(Chart);
 
-  var helpers = Chart.helpers;
+  const helpers = Chart.helpers;
 
   Chart.defaults.whisker = {
     hover: {
@@ -34,18 +34,21 @@ module.exports = function(Chart) {
     dataElementType: Chart.elements.Whisker,
 
     initialize: function(chart, datasetIndex) {
-      Chart.DatasetController.prototype.initialize.call(this, chart, datasetIndex);
+      Chart.DatasetController.prototype.initialize
+        .call(this, chart, datasetIndex);
 
       // Use this to indicate that this is a bar dataset.
       this.getMeta().bar = true;
     },
 
-    // Get the number of datasets that display bars. We use this to correctly calculate the bar width
+    // Get the number of datasets that display bars.
+    // We use this to correctly calculate the bar width
     getBarCount: function() {
-      var me = this;
-      var barCount = 0;
-      helpers.each(me.chart.data.datasets, function(dataset, datasetIndex) {
-        var meta = me.chart.getDatasetMeta(datasetIndex);
+      const me = this;
+      let barCount = 0;
+
+      helpers.each(me.chart.data.datasets, (dataset, datasetIndex) => {
+        const meta = me.chart.getDatasetMeta(datasetIndex);
         if (meta.bar && me.chart.isDatasetVisible(datasetIndex)) {
           ++barCount;
         }
@@ -53,29 +56,29 @@ module.exports = function(Chart) {
       return barCount;
     },
 
-    update: function(reset) {
-      var me = this;
+    update: function update(reset) {
+      const me = this;
       helpers.each(me.getMeta().data, function(rectangle, index) {
         me.updateElement(rectangle, index, reset);
       }, me);
     },
 
-    updateElement: function(rectangle, index, reset) {
-      var me = this;
-      var meta = me.getMeta();
-      var xScale = me.getScaleForId(meta.xAxisID);
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var scaleBase = yScale.getBasePixel();
-      var rectangleElementOptions = me.chart.options.elements.rectangle;
-      var custom = rectangle.custom || {};
-      var dataset = me.getDataset();
+    updateElement: function updateElement(rectangle, index, reset) {
+      const me = this;
+      const meta = me.getMeta();
+      const xScale = me.getScaleForId(meta.xAxisID);
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const scaleBase = yScale.getBasePixel();
+      const rectangleElementOptions = me.chart.options.elements.rectangle;
+      const custom = rectangle.custom || {};
+      const dataset = me.getDataset();
 
       rectangle._xScale = xScale;
       rectangle._yScale = yScale;
       rectangle._datasetIndex = me.index;
       rectangle._index = index;
 
-      var ruler = me.getRuler(index);
+      const ruler = me.getRuler(index);
       rectangle._model = {
         x: me.calculateBarX(index, me.index, ruler),
         y: reset ? scaleBase : me.boxTopValue(index, me.index),
@@ -90,98 +93,119 @@ module.exports = function(Chart) {
         minV: reset ? scaleBase : me.minValue(me.index, index),
         base: reset ? scaleBase : me.boxBottomValue(me.index, index),
         width: me.calculateBarWidth(ruler),
-        backgroundColor: custom.backgroundColor ? custom.backgroundColor : helpers.getValueAtIndexOrDefault(me.stddev(me.index, index) > 3 ? dataset.altBackgroundColor : dataset.backgroundColor, index, rectangleElementOptions.backgroundColor),
-        borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
-        borderColor: custom.borderColor ? custom.borderColor : helpers.getValueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor),
-        borderWidth: custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth)
+        backgroundColor: custom.backgroundColor
+          ? custom.backgroundColor
+          : helpers.getValueAtIndexOrDefault(me.stddev(me.index, index) > 3
+            ? dataset.altBackgroundColor
+            : dataset.backgroundColor
+          , index, rectangleElementOptions.backgroundColor),
+        borderSkipped: custom.borderSkipped
+            ? custom.borderSkipped
+            : rectangleElementOptions.borderSkipped,
+        borderColor: custom.borderColor
+          ? custom.borderColor
+          : helpers.getValueAtIndexOrDefault(
+            dataset.borderColor,
+            index,
+            rectangleElementOptions.borderColor
+        ),
+        borderWidth: custom.borderWidth
+          ? custom.borderWidth
+          : helpers.getValueAtIndexOrDefault(
+            dataset.borderWidth,
+            index,
+          rectangleElementOptions.borderWidth)
       };
 
       rectangle.pivot();
     },
 
     stddev: function(datasetIndex, index) {
-      var me = this;
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.stddev);
-
-      return value;
+      const obj = this.getDataset().data[index];
+      return parseInt(obj.stddev, 10);
     },
 
     minValue: function(datasetIndex, index) {
-      var me = this;
-      var meta = me.getMeta();
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.min);
+      const me = this;
+      const meta = me.getMeta();
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const obj = me.getDataset().data[index];
+      const value = parseInt(obj.min, 10);
 
       return yScale.getPixelForValue(value);
     },
 
     maxValue: function(datasetIndex, index) {
-      var me = this;
-      var meta = me.getMeta();
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.max);
+      const me = this;
+      const meta = me.getMeta();
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const obj = me.getDataset().data[index];
+      const value = Number(obj.max);
 
       return yScale.getPixelForValue(value);
     },
 
     medianValue: function(datasetIndex, index) {
-      var me = this;
-      var meta = me.getMeta();
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.median);
+      const me = this;
+      const meta = me.getMeta();
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const obj = me.getDataset().data[index];
+      const value = Number(obj.median);
 
       return yScale.getPixelForValue(value);
     },
 
     boxBottomValue: function(datasetIndex, index) {
-      var me = this;
-      var meta = me.getMeta();
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.firstQuartile);
+      const me = this;
+      const meta = me.getMeta();
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const obj = me.getDataset().data[index];
+      const value = Number(obj.firstQuartile);
 
       return yScale.getPixelForValue(value);
     },
 
     boxTopValue: function(index, datasetIndex) {
-      var me = this;
-      var meta = me.getMeta();
-      var yScale = me.getScaleForId(meta.yAxisID);
-      var obj = me.getDataset().data[index];
-      var value = Number(obj.thirdQuartile);
+      const me = this;
+      const meta = me.getMeta();
+      const yScale = me.getScaleForId(meta.yAxisID);
+      const obj = me.getDataset().data[index];
+      const value = Number(obj.thirdQuartile);
 
       return yScale.getPixelForValue(value);
     },
 
     getRuler: function(index) {
-      var me = this;
-      var meta = me.getMeta();
-      var xScale = me.getScaleForId(meta.xAxisID);
-      var datasetCount = me.getBarCount();
+      const me = this;
+      const meta = me.getMeta();
+      const xScale = me.getScaleForId(meta.xAxisID);
+      const datasetCount = me.getBarCount();
 
-      var tickWidth;
+      let tickWidth;
 
       if (xScale.options.type === 'category') {
-        tickWidth = xScale.getPixelForTick(index + 1) - xScale.getPixelForTick(index);
+        tickWidth = xScale.getPixelForTick(index + 1)
+          - xScale.getPixelForTick(index);
       } else {
         // Average width
         tickWidth = xScale.width / xScale.ticks.length;
       }
-      var categoryWidth = tickWidth * xScale.options.categoryPercentage;
-      var categorySpacing = (tickWidth - (tickWidth * xScale.options.categoryPercentage)) / 2;
-      var fullBarWidth = categoryWidth / datasetCount;
+
+      const categoryWidth = tickWidth * xScale.options.categoryPercentage;
+      const categorySpacing = (
+        tickWidth - (tickWidth * xScale.options.categoryPercentage)
+      ) / 2;
+
+      let fullBarWidth = categoryWidth / datasetCount;
 
       if (xScale.ticks.length !== me.chart.data.labels.length) {
-        var perc = xScale.ticks.length / me.chart.data.labels.length;
+        const perc = xScale.ticks.length / me.chart.data.labels.length;
         fullBarWidth = fullBarWidth * perc;
       }
 
-      var barWidth = fullBarWidth * xScale.options.barPercentage;
-      var barSpacing = fullBarWidth - (fullBarWidth * xScale.options.barPercentage);
+      const barWidth = fullBarWidth * xScale.options.barPercentage;
+      const barSpacing = fullBarWidth
+        - (fullBarWidth * xScale.options.barPercentage);
 
       return {
         datasetCount: datasetCount,
@@ -195,21 +219,20 @@ module.exports = function(Chart) {
     },
 
     calculateBarWidth: function(ruler) {
-      var xScale = this.getScaleForId(this.getMeta().xAxisID);
+      const xScale = this.getScaleForId(this.getMeta().xAxisID);
       if (xScale.options.barThickness) {
         return xScale.options.barThickness;
       }
       return ruler.barWidth;
     },
 
-    // Get bar index from the given dataset index accounting for the fact that not all bars are visible
+    // Get bar index from the given dataset index accounting
+    // for the fact that not all bars are visible
     getBarIndex: function(datasetIndex) {
-      var barIndex = 0;
-      var meta;
-      var j;
+      let barIndex = 0;
 
-      for (j = 0; j < datasetIndex; ++j) {
-        meta = this.chart.getDatasetMeta(j);
+      for (let j = 0; j < datasetIndex; ++j) {
+        const meta = this.chart.getDatasetMeta(j);
         if (meta.bar && this.chart.isDatasetVisible(j)) {
           ++barIndex;
         }
@@ -219,11 +242,14 @@ module.exports = function(Chart) {
     },
 
     calculateBarX: function(index, datasetIndex, ruler) {
-      var me = this;
-      var meta = me.getMeta();
-      var xScale = me.getScaleForId(meta.xAxisID);
-      var barIndex = me.getBarIndex(datasetIndex);
-      var leftTick = xScale.getPixelForValue(null, index, datasetIndex, me.chart.isCombo);
+      const me = this;
+      const meta = me.getMeta();
+      const xScale = me.getScaleForId(meta.xAxisID);
+      const barIndex = me.getBarIndex(datasetIndex);
+
+      let leftTick = xScale
+        .getPixelForValue(null, index, datasetIndex, me.chart.isCombo);
+
       leftTick -= me.chart.isCombo ? (ruler.tickWidth / 2) : 0;
 
       return leftTick +
@@ -235,42 +261,71 @@ module.exports = function(Chart) {
     },
 
     draw: function(ease) {
-      var me = this;
-      var easingDecimal = ease || 1;
-      var metaData = me.getMeta().data;
-      var dataset = me.getDataset();
-      var i, len;
+      const me = this;
+      const easingDecimal = ease || 1;
+      const metaData = me.getMeta().data;
+      const dataset = me.getDataset();
+      let i;
+      let len;
 
       for (i = 0, len = metaData.length; i < len; ++i) {
-        var d = dataset.data[i];
-        if (d !== null && d !== undefined && typeof d === 'object' && !isNaN(d.median)) {
+        const d = dataset.data[i];
+        if (d !== null
+          && d !== undefined
+          && typeof d === 'object'
+          && !isNaN(d.median)) {
           metaData[i].transition(easingDecimal).draw();
         }
       }
     },
 
     setHoverStyle: function(rectangle) {
-      var dataset = this.chart.data.datasets[rectangle._datasetIndex];
-      var index = rectangle._index;
+      const dataset = this.chart.data.datasets[rectangle._datasetIndex];
+      const index = rectangle._index;
 
-      var custom = rectangle.custom || {};
-      var model = rectangle._model;
-      model.backgroundColor = custom.hoverBackgroundColor ? custom.hoverBackgroundColor : helpers.getValueAtIndexOrDefault(dataset.hoverBackgroundColor, index, helpers.getHoverColor(model.backgroundColor));
-      model.borderColor = custom.hoverBorderColor ? custom.hoverBorderColor : helpers.getValueAtIndexOrDefault(dataset.hoverBorderColor, index, helpers.getHoverColor(model.borderColor));
-      model.borderWidth = custom.hoverBorderWidth ? custom.hoverBorderWidth : helpers.getValueAtIndexOrDefault(dataset.hoverBorderWidth, index, model.borderWidth);
+      const custom = rectangle.custom || {};
+      const model = rectangle._model;
+
+      model.backgroundColor = custom.hoverBackgroundColor
+        ? custom.hoverBackgroundColor
+        : helpers.getValueAtIndexOrDefault(
+          dataset.hoverBackgroundColor, index,
+          helpers.getHoverColor(model.backgroundColor)
+      );
+      model.borderColor = custom.hoverBorderColor
+        ? custom.hoverBorderColor
+        : helpers.getValueAtIndexOrDefault(
+          dataset.hoverBorderColor, index,
+          helpers.getHoverColor(model.borderColor)
+      );
+      model.borderWidth = custom.hoverBorderWidth
+        ? custom.hoverBorderWidth
+        : helpers.getValueAtIndexOrDefault(
+          dataset.hoverBorderWidth, index, model.borderWidth);
     },
 
     removeHoverStyle: function(rectangle) {
-      var dataset = this.chart.data.datasets[rectangle._datasetIndex];
-      var index = rectangle._index;
-      var custom = rectangle.custom || {};
-      var model = rectangle._model;
-      var rectangleElementOptions = this.chart.options.elements.rectangle;
+      const dataset = this.chart.data.datasets[rectangle._datasetIndex];
+      const index = rectangle._index;
+      const custom = rectangle.custom || {};
+      const model = rectangle._model;
+      const rectangleElementOptions = this.chart.options.elements.rectangle;
 
-      model.backgroundColor = custom.backgroundColor ? custom.backgroundColor : helpers.getValueAtIndexOrDefault(dataset.backgroundColor, index, rectangleElementOptions.backgroundColor);
-      model.borderColor = custom.borderColor ? custom.borderColor : helpers.getValueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor);
-      model.borderWidth = custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth);
+      model.backgroundColor = custom.backgroundColor
+        ? custom.backgroundColor
+        : helpers.getValueAtIndexOrDefault(
+          dataset.backgroundColor, index,
+          rectangleElementOptions.backgroundColor
+        );
+      model.borderColor = custom.borderColor
+        ? custom.borderColor
+        : helpers.getValueAtIndexOrDefault(
+          dataset.borderColor, index, rectangleElementOptions.borderColor);
+      model.borderWidth = custom.borderWidth
+        ? custom.borderWidth
+        : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index,
+          rectangleElementOptions.borderWidth
+      );
     }
-
   });
 };

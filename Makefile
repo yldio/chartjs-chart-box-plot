@@ -21,6 +21,10 @@ install:
 .PHONY: install-production
 install-production: install
 
+.PHONY: compile-browser
+compile-browser:
+	$(bindir)/browserify -d src/chart.js -o dist/compiled.js -t [ babelify --presets [ ] ]
+
 .PHONY: compile
 compile: install
 	$(bindir)/babel src --out-dir dist --source-maps inline

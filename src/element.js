@@ -1,8 +1,6 @@
-'use strict';
+module.exports = function BoxPlotElement(Chart) {
 
-module.exports = function(Chart) {
-
-  var globalOpts = Chart.defaults.global;
+  const globalOpts = Chart.defaults.global;
 
   globalOpts.tooltips.enabled = false;
 
@@ -24,19 +22,19 @@ module.exports = function(Chart) {
    * @return {Bounds} bounds of the bar
    */
   function getBarBounds(bar) {
-    var vm = bar._view;
-    var x1, x2, y1, y2;
+    const vm = bar._view;
+    let x1, x2, y1, y2;
 
     if (isVertical(bar)) {
       // vertical
-      var halfWidth = vm.width / 2;
+      const halfWidth = vm.width / 2;
       x1 = vm.x - halfWidth;
       x2 = vm.x + halfWidth;
       y1 = Math.min(vm.y, vm.base);
       y2 = Math.max(vm.y, vm.base);
     } else {
       // horizontal bar
-      var halfHeight = vm.height / 2;
+      const halfHeight = vm.height / 2;
       x1 = Math.min(vm.x, vm.base);
       x2 = Math.max(vm.x, vm.base);
       y1 = vm.y - halfHeight;
@@ -52,15 +50,15 @@ module.exports = function(Chart) {
   }
 
   Chart.elements.Whisker = Chart.Element.extend({
-    draw: function() {
-      var ctx = this._chart.ctx;
-      var vm = this._view;
+    draw: function draw() {
+      const ctx = this._chart.ctx;
+      const vm = this._view;
 
-      var halfWidth = vm.width / 2,
-        leftX = vm.x - halfWidth,
-        rightX = vm.x + halfWidth,
-        top = vm.base - (vm.base - vm.y),
-        halfStroke = vm.borderWidth / 2;
+      const halfStroke = vm.borderWidth / 2;
+      const halfWidth = vm.width / 2;
+      let leftX = vm.x - halfWidth;
+      let rightX = vm.x + halfWidth;
+      let top = vm.base - (vm.base - vm.y);
 
       // Canvas doesn't allow us to stroke inside the width so we can
       // adjust the sizes to fit if we're setting a stroke on the line
@@ -78,7 +76,7 @@ module.exports = function(Chart) {
       // Corner points, from bottom-left to bottom-right clockwise
       // | 1 2 |
       // | 0 3 |
-      var corners = [
+      const corners = [
         [leftX, vm.base],
         [leftX, top],
         [rightX, top],
@@ -86,8 +84,8 @@ module.exports = function(Chart) {
       ];
 
       // Find first (starting) corner with fallback to 'bottom'
-      var borders = ['bottom', 'left', 'top', 'right'];
-      var startCorner = borders.indexOf(vm.borderSkipped, 0);
+      const borders = ['bottom', 'left', 'top', 'right'];
+      let startCorner = borders.indexOf(vm.borderSkipped, 0);
       if (startCorner === -1) {
         startCorner = 0;
       }
@@ -97,10 +95,10 @@ module.exports = function(Chart) {
       }
 
       // Draw rectangle from 'startCorner'
-      var corner = cornerAt(0);
+      let corner = cornerAt(0);
       ctx.moveTo(corner[0], corner[1]);
 
-      for (var i = 1; i < 4; i++) {
+      for (let i = 1; i < 4; i++) {
         corner = cornerAt(i);
         ctx.lineTo(corner[0], corner[1]);
       }
@@ -156,27 +154,31 @@ module.exports = function(Chart) {
       }
     },
     height: function() {
-      var vm = this._view;
+      const vm = this._view;
       return vm.base - vm.y;
     },
     inRange: function(mouseX, mouseY) {
-      var inRange = false;
+      let inRange = false;
 
       if (this._view) {
-        var bounds = getBarBounds(this);
-        inRange = mouseX >= bounds.left && mouseX <= bounds.right && mouseY >= bounds.top && mouseY <= bounds.bottom;
+        const bounds = getBarBounds(this);
+        inRange = mouseX >= bounds.left
+          && mouseX <= bounds.right
+          && mouseY >= bounds.top
+          && mouseY <= bounds.bottom;
       }
 
       return inRange;
     },
     inLabelRange: function(mouseX, mouseY) {
-      var me = this;
+      const me = this;
       if (!me._view) {
         return false;
       }
 
-      var inRange = false;
-      var bounds = getBarBounds(me);
+      const bounds = getBarBounds(me);
+
+      let inRange = false;
 
       if (isVertical(me)) {
         inRange = mouseX >= bounds.left && mouseX <= bounds.right;
@@ -187,16 +189,16 @@ module.exports = function(Chart) {
       return inRange;
     },
     inXRange: function(mouseX) {
-      var bounds = getBarBounds(this);
+      const bounds = getBarBounds(this);
       return mouseX >= bounds.left && mouseX <= bounds.right;
     },
     inYRange: function(mouseY) {
-      var bounds = getBarBounds(this);
+      const bounds = getBarBounds(this);
       return mouseY >= bounds.top && mouseY <= bounds.bottom;
     },
     getCenterPoint: function() {
-      var vm = this._view;
-      var x, y;
+      const vm = this._view;
+      let x, y;
       if (isVertical(this)) {
         x = vm.x;
         y = (vm.y + vm.base) / 2;
@@ -205,14 +207,16 @@ module.exports = function(Chart) {
         y = vm.y;
       }
 
-      return {x: x, y: y};
+      return {
+        x, y
+      };
     },
     getArea: function() {
-      var vm = this._view;
+      const vm = this._view;
       return vm.width * Math.abs(vm.y - vm.base);
     },
     tooltipPosition: function() {
-      var vm = this._view;
+      const vm = this._view;
       return {
         x: vm.x,
         y: vm.y
