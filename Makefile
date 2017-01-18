@@ -23,7 +23,7 @@ install-production: install
 
 .PHONY: compile-browser
 compile-browser:
-	$(bindir)/browserify -d src/chart.js -o dist/compiled.js -t [ babelify --presets [ ] ]
+	$(bindir)/browserify -d src/chart.js -o dist/compiled.js -t [ babelify --presets [ es2015 ] ]
 
 .PHONY: compile
 compile: install
