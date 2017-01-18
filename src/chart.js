@@ -14,10 +14,6 @@ module.exports = function BoxPlotChart(Chart) {
       xAxes: [{
         type: 'category',
 
-        // Specific to Bar Controller
-        categoryPercentage: 0.8,
-        barPercentage: 0.9,
-
         // grid line settings
         gridLines: {
           offsetGridLines: true
@@ -34,26 +30,12 @@ module.exports = function BoxPlotChart(Chart) {
     dataElementType: Chart.elements.Whisker,
 
     initialize: function(chart, datasetIndex) {
+
       Chart.DatasetController.prototype.initialize
         .call(this, chart, datasetIndex);
 
       // Use this to indicate that this is a bar dataset.
       this.getMeta().bar = true;
-    },
-
-    // Get the number of datasets that display bars.
-    // We use this to correctly calculate the bar width
-    getBarCount: function() {
-      const me = this;
-      let barCount = 0;
-
-      helpers.each(me.chart.data.datasets, (dataset, datasetIndex) => {
-        const meta = me.chart.getDatasetMeta(datasetIndex);
-        if (meta.bar && me.chart.isDatasetVisible(datasetIndex)) {
-          ++barCount;
-        }
-      }, me);
-      return barCount;
     },
 
     update: function update(reset) {
@@ -92,7 +74,7 @@ module.exports = function BoxPlotChart(Chart) {
         maxV: reset ? scaleBase : me.maxValue(me.index, index),
         minV: reset ? scaleBase : me.minValue(me.index, index),
         base: reset ? scaleBase : me.boxBottomValue(me.index, index),
-        width: me.calculateBarWidth(ruler),
+        width: ruler.barWidth,
         backgroundColor: custom.backgroundColor
           ? custom.backgroundColor
           : helpers.getValueAtIndexOrDefault(me.stddev(me.index, index) > 3
@@ -130,7 +112,7 @@ module.exports = function BoxPlotChart(Chart) {
       const meta = me.getMeta();
       const yScale = me.getScaleForId(meta.yAxisID);
       const obj = me.getDataset().data[index];
-      const value = parseInt(obj.min, 10);
+      const value = Number(obj.min);
 
       return yScale.getPixelForValue(value);
     },
@@ -179,51 +161,13 @@ module.exports = function BoxPlotChart(Chart) {
       const me = this;
       const meta = me.getMeta();
       const xScale = me.getScaleForId(meta.xAxisID);
-      const datasetCount = me.getBarCount();
 
-      let tickWidth;
-
-      if (xScale.options.type === 'category') {
-        tickWidth = xScale.getPixelForTick(index + 1)
-          - xScale.getPixelForTick(index);
-      } else {
-        // Average width
-        tickWidth = xScale.width / xScale.ticks.length;
-      }
-
-      const categoryWidth = tickWidth * xScale.options.categoryPercentage;
-      const categorySpacing = (
-        tickWidth - (tickWidth * xScale.options.categoryPercentage)
-      ) / 2;
-
-      let fullBarWidth = categoryWidth / datasetCount;
-
-      if (xScale.ticks.length !== me.chart.data.labels.length) {
-        const perc = xScale.ticks.length / me.chart.data.labels.length;
-        fullBarWidth = fullBarWidth * perc;
-      }
-
-      const barWidth = fullBarWidth * xScale.options.barPercentage;
-      const barSpacing = fullBarWidth
-        - (fullBarWidth * xScale.options.barPercentage);
+      const barWidth = xScale.getPixelForValue(null, index + 1, 0, me.chart.isCombo)
+          - xScale.getPixelForValue(null, index, 0, me.chart.isCombo);
 
       return {
-        datasetCount: datasetCount,
-        tickWidth: tickWidth,
-        categoryWidth: categoryWidth,
-        categorySpacing: categorySpacing,
-        fullBarWidth: fullBarWidth,
-        barWidth: barWidth,
-        barSpacing: barSpacing
+        barWidth: barWidth
       };
-    },
-
-    calculateBarWidth: function(ruler) {
-      const xScale = this.getScaleForId(this.getMeta().xAxisID);
-      if (xScale.options.barThickness) {
-        return xScale.options.barThickness;
-      }
-      return ruler.barWidth;
     },
 
     // Get bar index from the given dataset index accounting
@@ -250,14 +194,9 @@ module.exports = function BoxPlotChart(Chart) {
       let leftTick = xScale
         .getPixelForValue(null, index, datasetIndex, me.chart.isCombo);
 
-      leftTick -= me.chart.isCombo ? (ruler.tickWidth / 2) : 0;
-
       return leftTick +
         (ruler.barWidth / 2) +
-        ruler.categorySpacing +
-        (ruler.barWidth * barIndex) +
-        (ruler.barSpacing / 2) +
-        (ruler.barSpacing * barIndex);
+        (ruler.barWidth * barIndex);
     },
 
     draw: function(ease) {
